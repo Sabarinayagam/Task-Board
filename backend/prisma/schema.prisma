@@ -1,0 +1,32 @@
+// Prisma schema for the Real-Time Task Board
+// Run `npm run prisma:migrate` to create the database migration.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CardStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+model Card {
+  id        String     @id @default(uuid())
+  title     String
+  status    CardStatus @default(TODO)
+  // Float position allows fractional re-ordering (e.g. inserting between
+  // 1.0 and 2.0 by writing 1.5) without having to re-index every card
+  // in the column on every drag-and-drop operation.
+  position  Float
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([status, position])
+  @@map("cards")
+}
